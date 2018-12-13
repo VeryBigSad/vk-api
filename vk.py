@@ -16,14 +16,14 @@ import random
 
 
 class vk:
-		def __init__(self, token, min_wait_time=3, max_wait_time=6, type='bot', api_version=5.90):
-		self.type = type#type of user - bot, group, etc
-		self.token = token#token
-		self.api_version = api_version#api version
-		self.min_wait_time = min_wait_time#to have no_captcha
-		self.max_wait_time = max_wait_time#to have no_captcha
-		self.TEMP = None#костыль, я знаю, мб к 0.5 исправлю
-		self.id = self.method('users.get', {}, token).json().get('response')[0].get('id')
+	def __init__(self, token, min_wait_time=3, max_wait_time=6, type='bot', api_version=5.90):
+			self.type = type#type of user - bot, group, etc
+			self.token = token#token
+			self.api_version = api_version#api version
+			self.min_wait_time = min_wait_time#to have no_captcha
+			self.max_wait_time = max_wait_time#to have no_captcha
+			self.TEMP = None#костыль, я знаю, мб к 0.5 исправлю
+			self.id = self.method('users.get', {}, token).json().get('response')[0].get('id')
 
 	def jsoner(self, data):
 		#Эта функция обрабатывает входящий, сырой response обьект и делает из него что-то понятное
@@ -183,7 +183,7 @@ class vk:
 
 	def upload_photo(self, album_id, photos, group_id = '', capition=''):
 		#пока не работает, но должно загружать фото на сервер
-		
+
 		#TODO: finally make it work
 		url=method('photos.getUploadServer', {'album_id': album_id, 'group_id': group_id}).get('response').get('upload_url')#having url
 		r=req.post(url, files=photos)#making request to this url
