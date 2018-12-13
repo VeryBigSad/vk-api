@@ -5,16 +5,7 @@ import Tkinter as tk#do this shit in main.py
 from PIL import Image, ImageTk
 
 
-class bot:
-	def __init__(self):
-		self.type = type#type of user - bot, group, etc
-		self.token = token#token
-		self.api_version = api_version#api version
-		self.test_id = test_id#id where we send all testing messages
-		self.min_wait_time = min_wait_time#to have no_captcha
-		self.max_wait_time = max_wait_time#to have no_captcha
-		self.TEMP = None#костыль, я знаю, мб к 0.5 исправлю
-		self.id = method('users.get', {}, token).json().get('response')[0].get('id')
+class bot(vk):
 
 	def msg_spammer(self,msg, ids):
 		id_list = ''#list of id's (like 1123323,142334,534756 etc)

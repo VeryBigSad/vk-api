@@ -5,11 +5,10 @@ from sys import path
 from vk import *
 
 class group(vk):
-	def __init__(self, token):
-		self.token = token
-		self.id = 174145768#TODO: fix this shit
-	def a(self, owner_id):
-		a=1
+
+	def mass_ban(self, ids):
+		for id in ids:
+			self.group_ban(id, self.id, )
 
 
 
