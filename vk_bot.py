@@ -9,6 +9,8 @@ class bot(vk):
 	def __init__(self, token, min_wait_time=3, max_wait_time=6, api_version=5.90):
 		vk.__init__(self, token, min_wait_time, max_wait_time, api_version)
 		self.id = self.method('users.get', {}).json().get('response')[0].get('id')
+		self.log.info('Bot class started!')
+
 
 
 	def msg_spammer(self, msg, count, ids=None):
