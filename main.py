@@ -7,6 +7,7 @@
 
 import group_bot
 import vk_bot
+from time import *
 
 def main():
 	group_token = '3e43264dcb39c26b2b9f86902c878f12897ba0b842331eb9340f6d0315d119f6e8095093de2b802d78432'#group mrb
@@ -14,7 +15,11 @@ def main():
 
 	bot = vk_bot.bot(bot_token, 'info')#инициализируем обьекты с нашими токенами
 	group = group_bot.group(group_token,174145768)
-	print(bot.get_rand_ids(9))
+	# print(bot.get_rand_ids(9))#просто заглушука для какой-то работы
+	
+	
+
+
 
 if __name__ == '__main__':
 	main()

@@ -14,5 +14,6 @@ def router():
 
 
 
-if type == "test":
-	app.run(host="0.0.0.0", port="80")
+app.run(host="0.0.0.0", port="80")
+#просто убрать когда понадобится импортить файл
+

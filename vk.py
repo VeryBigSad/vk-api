@@ -11,13 +11,13 @@
 import requests as req
 import logging
 from sys import stdout
-from time import sleep, time
+from time import sleep, time, strftime
 from random import randint
 
 
 
 class vk:
-	def __init__(self, token, log_level='info', min_wait_time=3, max_wait_time=6, api_version=5.92):
+	def __init__(self, token, log_level='info', logger_name = 'vk', min_wait_time=3, max_wait_time=6, api_version=5.92):
 		self.token = token#token
 		self.api_version = api_version#api version
 		self.min_wait_time = min_wait_time#to have no_captcha
@@ -37,15 +37,15 @@ class vk:
 			elif log_level == 'error': log_level = logging.ERROR
 			elif log_level == 'critical': log_level = logging.CRITICAL
 
-			formatter = logging.Formatter('%(asctime)s [%(name)s][%(levelname)s]: %(message)s')
 			handler = logging.StreamHandler(stdout)
-			handler.setFormatter(formatter)
+			handler.setFormatter(logging.Formatter(strftime('%H:%M:%S')+" — [%(name)s][%(levelname)s]: %(message)s"))
 			self.log.addHandler(handler)
 			handler = logging.FileHandler('logs.log')
+			formatter = logging.Formatter(strftime('%H:%M:%S')+'[%(name)s][%(levelname)s]: %(message)s')
 			handler.setFormatter(formatter)
 			self.log.addHandler(logging.FileHandler('logs.log'))
 			self.log.setLevel(log_level)
-			self.log.info('S T A R T ')
+			self.log.info('S T A R T\n')
 
 			
 
@@ -65,7 +65,7 @@ class vk:
 			if data.get('error').get('error_code') == 6:
 				data['error']['error_code'] = 'too_much_requests'
 
-			self.log.error('vk sent error, ' +data.get('error').get('error_code')+'.')
+			self.log.error('vk sent error, ' +data.get('error').get('error_code')+', response: ' + str(data.get('error')))
 			self.log.debug('response: ' + str(data.get('error')))
 			
 			return data.get('error')
@@ -119,10 +119,10 @@ class vk:
 			return self.jsoner(self.method('users.get', params))
 
 
-	def get_last_posts(self, group_id, post_count = 100, offset = 1):
-		#последние посты со стены группы
+	def get_last_posts(self, owner_id, post_count = 100, offset = 1):
+		#последние посты со стены
 		arr = []
-		params = {'count': post_count, 'owner_id': group_id, 'offset': offset}
+		params = {'count': post_count, 'owner_id': owner_id, 'offset': offset}
 		r=self.jsoner(self.method('wall.get', params))
 
 		for i in range(0, post_count):
@@ -131,8 +131,8 @@ class vk:
 		return arr
 
 
-	def post(self, owner_id, msg ='ыыы (сполелся)', attachments='', time='', from_group='', is_ad=''):
-		#публикует запись на странице группы
+	def post(self, owner_id, msg ='ыыы', attachments='', time='', from_group='', is_ad=''):
+		#публикует запись на стене
 		params={'owner_id': owner_id, 'attachments': attachments, 'message': msg,'publish_date': time, 'from_group': from_group, 'guid': randint(0, 100000), 'marked_as_ads': is_ad}
 		self.log.debug('posting something...')
 		return self.jsoner(self.method('wall.post', params))
@@ -193,18 +193,18 @@ class vk:
 			
 			if usr.get('deactivated') != None:#some shit, where we check activity of user.
 				data.remove(usr)
-				self.log.debug(str(usr.get('id'))+' has been removed of he\'s deactivated, totaly: ' + str(i))
 				removed+=1
+				self.log.debug(str(usr.get('id'))+' has been removed of he\'s deactivated, totaly: ' + str(removed))
 				continue
 			if usr.get('last_seen').get('time')+259200 < self.start_time:
 				data.remove(usr)
-				self.log.debug(str(usr.get('id'))+' has been removed of he\'s not last_seen recently, totaly: ' + str(i))
 				removed+=1
+				self.log.debug(str(usr.get('id'))+' has been removed of he\'s not last_seen recently, totaly: ' + str(removed))
 				continue
 			if usr.get('can_write_private_message') == 0:
 				data.remove(usr)
-				self.log.debug(str(usr.get('id'))+' has been removed of he has closed msges, totaly: ' + str(i))
 				removed+=1 
+				self.log.debug(str(usr.get('id'))+' has been removed of he has closed msges, totaly: ' + str(removed))
 				continue
 
 			i+=1
