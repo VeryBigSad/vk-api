@@ -2,7 +2,7 @@
 import words
 from sys import path
 path.insert(0, '../')#not working, fix it
-#aaaaaaaaaa
+#aaaaaaaaaaa
 from vk import *
 
 def msg_handler(data):
