@@ -1,5 +1,8 @@
 *.pyc
 *.log
 __pychache__
+<<<<<<< HEAD
 settings.py
 vk_server.py
+=======
+>>>>>>> d77cf3d6930fca8dc67cceb26102a0f3f35af76b
