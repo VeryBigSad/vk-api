@@ -6,19 +6,11 @@
 
 
 
-
+from settings import *
 import group_bot
 import vk_bot
-from time import *
-from flask import *
 
 def main():
-	###ENTER TOKENS BELOW
-	###ENTER TOKENS BELOW
-	###ENTER TOKENS BELOW
-	group_token = ''#group
-	bot_token   = ''#bot
-
 
 	bot = vk_bot.bot(bot_token)#инициализируем обьекты с нашими токенами
 	group = group_bot.group(group_token)

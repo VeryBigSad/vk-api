@@ -6,7 +6,7 @@ path.insert(0, 'callback')
 import message_handler
 
 class group(vk):
-	def __init__(self, token, id, testing_mode=False, min_wait_time=3, max_wait_time=6,logger_name='vk', log_level='info', api_version=5.90):
+	def __init__(self, token, id=174145768, testing_mode=False, min_wait_time=3, max_wait_time=6,logger_name='vk', log_level='info', api_version=5.90):
 		vk.__init__(self, token, testing_mode,min_wait_time, max_wait_time,logger_name,log_level, api_version)
 		self.id = id
 		self.log.info('Group class started!')
