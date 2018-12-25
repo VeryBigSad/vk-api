@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import words
 from sys import path
-path.insert(0, '../')
+path.insert(0, '../')#not working, fix it
 from vk import *
 
 def msg_handler(data):

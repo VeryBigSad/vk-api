@@ -10,6 +10,8 @@ from settings import *
 import group_bot
 import vk_bot
 
+import Tkinter
+
 def main():
 
 	bot = vk_bot.bot(bot_token)#инициализируем обьекты с нашими токенами

@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 from vk import *
 
-import Tkinter as tk#do this shit in main.py
-from PIL import Image, ImageTk
-
-
 class bot(vk):
 	def __init__(self, token, testing_mode=False,logger_name='vk', log_level='info',min_wait_time=3, max_wait_time=6, api_version=5.90):
 		vk.__init__(self, token, testing_mode,min_wait_time, max_wait_time,logger_name,log_level, api_version)
