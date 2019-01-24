@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 from vk import *
 
-<<<<<<< HEAD
-=======
 import Tkinter as tk#do this shit in main.py
 from PIL import Image, ImageTk
 
 
->>>>>>> d77cf3d6930fca8dc67cceb26102a0f3f35af76b
 class bot(vk):
 	def __init__(self, token, testing_mode=False,logger_name='vk', log_level='info',min_wait_time=3, max_wait_time=6, api_version=5.90):
 		vk.__init__(self, token, testing_mode,min_wait_time, max_wait_time,logger_name,log_level, api_version)
-		self.id = self.method('users.get', {}).json().get('response')[0].get('id')
-		self.log.info('Bot class started!')
+
+		self.id = self.get_usrinfo()
+		self.log.debug('id of bot is ' +str(self.id))
+		self.log.info('Bot class started!\n')
 
 
 
@@ -81,8 +80,3 @@ class bot(vk):
 
 
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> d77cf3d6930fca8dc67cceb26102a0f3f35af76b

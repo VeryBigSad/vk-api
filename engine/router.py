@@ -15,9 +15,7 @@ group = group_bot.group(group_token,174145768, True, logger_name='mrb_router')
 @app.route('/', methods=['POST'])
 def router():
 	data = json.loads(request.data)
-
-	if 'type' not in data.keys():
-		return 'not vk'
+	if data.get('secret') != secret_word: return 'not vk'#проверяем, вк ли это вообще.
 
 	if data.get('type') == 'confirmation':
 		return confirmation_token

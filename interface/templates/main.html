@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VK Bots</title>
+</head>
+<body>
+    <h2>Add bot</h2>
+    <form action="/add_bot">
+
+        <select name="type">
+            <option value="group">group</option>
+            <option value="bot">bot</option>
+        </select>
+        <h5>access token</h5>
+        <input type="text" name="token">
+        <button type="submit">add</button>
+    </form>
+    <div>
+        <h2>Your bots:</h2>
+        <ol>
+        {% for bot in bots %}
+            <li>{{ bot.token }}</li>
+        {% endfor %}
+        </ol>
+    </div>
+</body>
+</html>

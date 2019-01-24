@@ -1,13 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-#TODO: сделать загрузку файлов на сервер,
-#TODO: сделать авторизацию
-
-#TODO: разделить все на 3 файла: просто гет функции, хуйня для спама и хуйня для групп-бота
-#СРОЧНО: адаптировать все говно под новый джсонер, или нахуй его в печку
-
-
 import requests as req
 import logging
 from sys import stdout
@@ -17,7 +9,10 @@ from random import randint
 
 
 class vk:
-	def __init__(self, token, testing_mode=False, min_wait_time=3, max_wait_time=6, logger_name='vk', log_level='info', api_version=str(5.92)):#20.12 - работает
+	def __init__(self, token, testing_mode=False,
+				 min_wait_time=3, max_wait_time=6, logger_name='vk',
+				 log_level='info', api_version=str(5.92)):#20.12 - работает
+
 		self.token = token#token
 		self.api_version = api_version#api version
 		self.min_wait_time = min_wait_time#to have no_captcha
@@ -27,27 +22,46 @@ class vk:
 		self.start_time = int(time())
 		self.testing_mode = testing_mode
 		self.stub = {'error': {'error_code': 'stub', 'request_params':[{'key': 'method', 'value':'stub.stub'}, {'key': 'v', 'value': '5.92'}]}}
-		#хз зачем это говно, по идее заглушка
-
 		#логгер
 		self.log = logging.getLogger(logger_name)
-
+		self.main_logger = logging.getLogger('main_vk')
+		self.log.info('Starting...')
 		if not len(self.log.handlers):
 			if log_level == 'debug': log_level = logging.DEBUG
 			elif log_level == 'info': log_level = logging.INFO
 			elif log_level == 'warning': log_level = logging.WARNING
 			elif log_level == 'error': log_level = logging.ERROR
 			elif log_level == 'critical': log_level = logging.CRITICAL
+			
 			handler = logging.StreamHandler(stdout)
 			handler.setFormatter(logging.Formatter("%(asctime)s - [%(name)s][%(levelname)s]: %(message)s"))
 			self.log.addHandler(handler)
-			handler = logging.FileHandler('logs.log')
-			formatter = logging.Formatter('%(asctime)s - [%(name)s][%(levelname)s]: %(message)s')
-			handler.setFormatter(formatter)
-			self.log.addHandler(logging.FileHandler('logs.log'))
-			self.log.setLevel(log_level)
-			self.log.info('S T A R T\n')
 
+			log_file='logs.log'
+			handler = logging.FileHandler(log_file)
+			handler.setFormatter(logging.Formatter("%(asctime)s - [%(name)s][%(levelname)s]: %(message)s"))
+			self.log.addHandler(logging.FileHandler(log_file))
+
+			self.log.setLevel(log_level)
+
+		if not len(self.main_logger.handlers):
+			if log_level == 'debug': log_level = logging.DEBUG
+			elif log_level == 'info': log_level = logging.INFO
+			elif log_level == 'warning': log_level = logging.WARNING
+			elif log_level == 'error': log_level = logging.ERROR
+			elif log_level == 'critical': log_level = logging.CRITICAL
+			
+			handler = logging.StreamHandler(stdout)
+			handler.setFormatter(logging.Formatter("%(asctime)s - [%(name)s][%(levelname)s]: %(message)s"))
+			self.main_logger.addHandler(handler)
+
+			log_file='logs.log'
+			handler = logging.FileHandler(log_file)
+			handler.setFormatter(logging.Formatter("%(asctime)s - [%(name)s][%(levelname)s]: %(message)s"))
+			self.main_logger.addHandler(logging.FileHandler(log_file))
+
+			self.main_logger.setLevel(log_level)
+			self.main_logger.info('S T A R T\n\n')
 			
 
 	def jsoner(self, data):#20.12 - работает
@@ -59,19 +73,14 @@ class vk:
 
 		if data.get('error') != None:
 			
-			if data.get('error').get('error_code') == 14:
-				data['error']['error_code'] = 'capthca'
-			if data.get('error').get('error_code') == 100:
-				data['error']['error_code'] = 'params'
-			if data.get('error').get('error_code') == 7:
-				data['error']['error_code'] = 'not_root'
-			if data.get('error').get('error_code') == 6:
-				data['error']['error_code'] = 'too_much_requests'
-			if data.get('error').get('error_code') == 18:
-				data['error']['error_code'] = 'user_blocked'
-			if data.get('error').get('error_code') == 'stub':
-				self.log.critical('hey there jsoner(), we got stub!')
-				raise RuntimeError('we got stub')
+			if data.get('error').get('error_code') == 14:  data['error']['error_code'] = 'capthca'
+			if data.get('error').get('error_code') == 100: data['error']['error_code'] = 'params'
+			if data.get('error').get('error_code') == 7:   data['error']['error_code'] = 'not_root'
+			if data.get('error').get('error_code') == 5:   data['error']['error_code'] = 'wrong_auth'
+			if data.get('error').get('error_code') == 6:   data['error']['error_code'] = 'too_much_requests'
+			if data.get('error').get('error_code') == 18:  data['error']['error_code'] = 'user_blocked'
+			if data.get('error').get('error_code') == 'stub':self.log.critical('hey there jsoner(), we got stub!');raise RuntimeError('we got stub')
+			
 			self.log.error('vk sent error: ' +str(data.get('error').get('error_code')))
 			self.log.debug(data.get('error'))
 			#дебаг патамуша в дочерней функции все должно обьясняться без голого запроса
@@ -83,36 +92,35 @@ class vk:
 			return data.get('response')
 
 
-	def method(self, method, args, captcha_id = '', captcha_key = ''):#20.12 - работает
+	def method(self, method, args, token=None,captcha_id = '', captcha_key = ''):#20.12 - работает
 		#эта дичь просто посылает запрос на сервер вк, собирая нужную ссылку по частям.
-		
 		url = 'https://api.vk.com/method/' + method + '?'
-		if self.testing_mode == True:
-			url = 'http://localhost:22824/?'
-
+		port = 22824
+		if self.testing_mode == True: url = 'http://localhost:'+port+'/?'
+		
+		self.log.debug(token)
+		self.log.debug(self.token)
+		if token == None: token=self.token
 		for i in args.keys():
 			url = url + i + '=' + str(args.get(i)) + '&'#adding every arg we have
-		url = url + 'access_token=' + self.token +'&v=' + str(self.api_version)#adding version and token
+		url = url + 'access_token=' + token +'&v=' + str(self.api_version)#adding version and token
 		
 		if captcha_id != '':
 			url = url + '&captcha_id=' + str(captcha_id) + '&captcha_key=' + str(captcha_key)
-		
+		self.log.debug('method(), url: '+url)
 		return req.post(url)
 
 
-	def get_group_members(self, group_id, sort = 'id_asc'):#20.12 - работает
+	def get_group_members(self, group_id, sort = 'id_asc', filter=None):#20.12 - работает
 		#закидывает вам участников группы, которую вы укажите.
 		params = {'group_id': group_id, 'sort': sort}
+		if filter != None: params.update([['filter', filter]])
 		r = self.jsoner(self.method('groups.getMembers', params))
 		
-		try: members = r.get('items')
-		except AttributeError: self.log.error('ERROR! '+self.get_group_members.__name__+', resp:\n' + r);return r
-		except LookupError: self.log.error('ERROR! '+self.get_group_members.__name__+', resp:\n' + r);return r
-		
-		return members
+		return r.get('items')
 
 
-	def get_usrinfo(self, url, fields= None):#20.12 - работает
+	def get_usrinfo(self, url=0, fields= None):#20.12 - работает
 		#дает инфу о пользователе
 		try:
 			int(url)#если юрл не число, а ссылка - тогда выполняем исключение
@@ -127,12 +135,14 @@ class vk:
 				url = url[2:len(url)]
 
 		finally:
-			params = {'user_ids': url, 'fields': fields}
+
+			params = {'fields': fields}
+			if url != 0: params.update([['user_id', url]])
+			self.log.debug(params)
 			r= self.jsoner(self.method('users.get', params))#эта функция для одного целовека онли
-			try: 
+			try:  
 				if r.get('error_code') != None: self.log.error('Error - we can not find dude with id ' + str(url))
-				
-			except AttributeError: self.log.info('get_usrinfo - ok!'); r=r[0]
+			except AttributeError: self.log.debug('get_usrinfo - ok!'); r=r[0]
 
 			return r
 
