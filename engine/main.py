@@ -5,12 +5,9 @@
 #а то это рили пиздец
 
 
-
-from settings import *
 import group_bot
 import vk_bot
 
-import Tkinter
 
 def main():
 
