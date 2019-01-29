@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from vk import *
+from engine.vk import *
 
-import Tkinter as tk#do this shit in main.py
-from PIL import Image, ImageTk
+# import Tkinter as tk  # do this shit in main.py
+# from PIL import Image, ImageTk
 
 
 class bot(vk):

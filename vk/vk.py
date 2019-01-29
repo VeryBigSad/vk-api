@@ -11,18 +11,18 @@ from random import randint
 class vk:
 	def __init__(self, token, testing_mode=False,
 				 min_wait_time=3, max_wait_time=6, logger_name='vk',
-				 log_level='info', api_version=str(5.92)):#20.12 - работает
+				 log_level='info', api_version=str(5.92)):
 
-		self.token = token#token
-		self.api_version = api_version#api version
-		self.min_wait_time = min_wait_time#to have no_captcha
-		self.max_wait_time = max_wait_time#to have no_captcha
-		self.TEMP = None#костыль, я знаю, мб к 0.5 исправлю
-		self.id = None#Переменные, необходимые для определеия в доч. классах
+		self.token = token  # token
+		self.api_version = api_version  # api version
+		self.min_wait_time = min_wait_time  # to have no_captcha
+		self.max_wait_time = max_wait_time  # to have no_captcha
+		self.TEMP = None  # костыль, я знаю, мб к 0.5 исправлю
+		self.id = None  # Переменные, необходимые для определеия в доч. классах
 		self.start_time = int(time())
 		self.testing_mode = testing_mode
 		self.stub = {'error': {'error_code': 'stub', 'request_params':[{'key': 'method', 'value':'stub.stub'}, {'key': 'v', 'value': '5.92'}]}}
-		#логгер
+		# логгер
 		self.log = logging.getLogger(logger_name)
 		self.main_logger = logging.getLogger('main_vk')
 		self.log.info('Starting...')
@@ -64,10 +64,10 @@ class vk:
 			self.main_logger.info('S T A R T\n\n')
 			
 
-	def jsoner(self, data):#20.12 - работает
-		#Эта функция обрабатывает входящий, сырой response обьект и делает из него что-то понятное
-		#было: {error:{'error_code': '14', 'lol':'lol228'}} стало: {'error_code': 'captcha', 'lol':'lol228'}
-		#чтобы проверить, ошибка ли это, проверьте error code
+	def jsoner(self, data):
+		# Эта функция обрабатывает входящий, сырой response обьект и делает из него что-то понятное
+		# было: {error:{'error_code': '14', 'lol':'lol228'}} стало: {'error_code': 'captcha', 'lol':'lol228'}
+		# чтобы проверить, ошибка ли это, проверьте error code
 
 		data = data.json()
 
@@ -111,8 +111,8 @@ class vk:
 		return req.post(url)
 
 
-	def get_group_members(self, group_id, sort = 'id_asc', filter=None):#20.12 - работает
-		#закидывает вам участников группы, которую вы укажите.
+	def get_group_members(self, group_id, sort = 'id_asc', filter=None):
+		# закидывает вам участников группы, которую вы укажите.
 		params = {'group_id': group_id, 'sort': sort}
 		if filter != None: params.update([['filter', filter]])
 		r = self.jsoner(self.method('groups.getMembers', params))
@@ -120,18 +120,18 @@ class vk:
 		return r.get('items')
 
 
-	def get_usrinfo(self, url=0, fields= None):#20.12 - работает
-		#дает инфу о пользователе
+	def get_usrinfo(self, url=0, fields= None):
+		# дает инфу о пользователе
 		try:
-			int(url)#если юрл не число, а ссылка - тогда выполняем исключение
+			int(url)  # если юрл не число, а ссылка - тогда выполняем исключение
 		except TypeError:
 
 			url = str(url)
 			if url.find('?') != -1:
 				url = url[url.find('https://vk.com/')+15:url.find('?')]
 			else:
-				url = url[url.find('https://vk.com/')+15:len(url)]#deleting everything exept screen name (like vk.com/durov->durov)
-			if url.find('id') != -1:#if it was a number, deleting the id prefix (id0000->0000)
+				url = url[url.find('https://vk.com/')+15:len(url)]  # deleting everything exept screen name (like vk.com/durov->durov)
+			if url.find('id') != -1:  # if it was a number, deleting the id prefix (id0000->0000)
 				url = url[2:len(url)]
 
 		finally:
@@ -147,7 +147,7 @@ class vk:
 			return r
 
 
-	def get_last_posts(self, owner_id, post_count = 100, offset = 1):#20.12 - работает
+	def get_last_posts(self, owner_id, post_count = 100, offset = 1):
 		#последние посты со стены
 		self.log.info('getting last posts from wall...')
 		arr = []
@@ -157,41 +157,41 @@ class vk:
 		return arr
 
 
-	def post(self, owner_id, msg ='ыыы', attachments='', time='', from_group='', is_ad=''):#20.12 - работает
+	def post(self, owner_id, msg ='ыыы', attachments='', time='', from_group='', is_ad=''):
 		#публикует запись на стене
 		params={'owner_id': owner_id, 'attachments': attachments, 'message': msg,'publish_date': time, 'from_group': from_group, 'guid': randint(0, 100000), 'marked_as_ads': is_ad}
 		self.log.info('posting something...')
 		return self.jsoner(self.method('wall.post', params))
 
-	def add_friend(self, id, msg=''):#20.12 - работает
+	def add_friend(self, id, msg=''):
 		#добавляет друга
 		params = {'user_id': id, 'text': msg}#it should be text, not 'message'. idk also.
 		self.log.debug('adding friend...')
 		return self.jsoner(self.method('friends.add', params))
 
-	def get_friends(self, id, offset =0):##20.12 - работает
+	def get_friends(self, id, offset =0):
 		# возвращает список друзей человека
 		params = {'user_id': id, 'offset': offset}
 		r= self.jsoner(self.method('friends.get', params)).get('items')
 		return r
 
 
-	def msg(self, msg, id):#20.12 - работает
-		#отправляет сообщение человеку
+	def msg(self, msg, id):
+		# отправляет сообщение человеку
 		params = {'message': msg, 'user_id': self.get_usrinfo(id).get('id')}
 		self.log.debug('sending message...')
 		r=self.jsoner(self.method('messages.send', params))
 		return r
 
-	def comment(self, owner_id, post_id, msg, attachments = '', from_group = ''):#20.12 - работает
-		#оставить комментарий под постом
+	def comment(self, owner_id, post_id, msg, attachments = '', from_group = ''):
+		# оставить комментарий под постом
 		params = {'owner_id': owner_id, 'post_id': post_id, 'attachments': attachments, 'message': msg, 'from_group': from_group}
 		self.log.debug('sending comment...')
 		return self.method('wall.createComment', params)
 		
-	def get_rand_ids(self, count, last_seen_days_max = 3, start_id = 1):#20.12 - работает
-		#выдает тебе рандомные айдишники активных пользователей
-		#минимальное кол-во юзеров: 100
+	def get_rand_ids(self, count, last_seen_days_max = 3, start_id = 1):
+		# выдает тебе рандомные айдишники активных пользователей
+		# минимальное кол-во юзеров: 100
 
 		self.log.info('started get_rand_ids')
 		
@@ -217,12 +217,12 @@ class vk:
 				data = data+self.jsoner(self.method('users.getFollowers', params)).get('items')
 			usr=data[i]
 			
-			if usr.get('deactivated') != None:#some shit, where we check activity of user.
+			if usr.get('deactivated') != None:# some shit, where we check activity of user.
 				data.remove(usr)
 				removed+=1
 				self.log.debug(str(usr.get('id'))+' has been removed of he\'s deactivated, totaly: ' + str(removed))
 				continue
-			if usr.get('last_seen').get('time')+259200 < self.start_time:
+			if usr.get('last_seen').get('time')+259200*last_seen_days_max < self.start_time:
 				data.remove(usr)
 				removed+=1
 				self.log.debug(str(usr.get('id'))+' has been removed of he\'s not last_seen recently, totaly: ' + str(removed))
@@ -244,17 +244,12 @@ class vk:
 		self.log.info('found '+str(count)+' ids, during operetion ' + str(removed)+ ' has been removed')
 		return data
 
-
-
-
-
-
-
 	# def upload_photo(self, album_id, photos, group_id = '', capition=''):
 	# 	#пока не работает, но должно загружать фото на сервер
 
 	# 	#TODO: finally make it work
-	# 	url=self.method('photos.getUploadServer', {'album_id': album_id, 'group_id': group_id}).get('response').get('upload_url')#having url
+	# 	url=self.method('photos.getUploadServer',
+	#			{'album_id': album_id, 'group_id': group_id}).get('response').get('upload_url')  # having url
 	# 	r=req.post(url, files=photos)#making request to this url
 	# 	r=self.method('photos.saveWallPhoto', {'user_id': group_id, 'photo': r.get('response'),
 	# 	'hash': r.get('response'), 'server': r.get('response'), 'capition': capition})#saving photo

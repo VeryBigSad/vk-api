@@ -1,10 +1,10 @@
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, render_template, redirect, request
 
-from settings import *
+import site.info_templates
 
 app = Flask('app')
 
-accounts = [{'login': 'admin', 'password': '12345'}]
+# accounts = [{'login': 'admin', 'password': '12345'}]
 
 
 @app.route('/', methods=['POST', 'GET'])

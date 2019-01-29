@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from vk import *
-from sys import path
-path.insert(0, 'callback')
-import message_handler
+import vk.vk
 
 class group(vk):
 	def __init__(self, token, id=174145768, testing_mode=False, min_wait_time=3, max_wait_time=6,logger_name='vk', log_level='info', api_version=5.9, group_admin=None):
