@@ -2,6 +2,7 @@
 
 import requests as req
 import logging
+import tkinter as tk
 from sys import stdout
 from time import sleep, time, strftime
 from random import randint
@@ -9,9 +10,7 @@ from random import randint
 
 
 class vk:
-	def __init__(self, token, testing_mode=False,
-				 min_wait_time=3, max_wait_time=6, logger_name='vk',
-				 log_level='info', api_version=str(5.92)):
+	def __init__(self, token, testing_mode=False,min_wait_time=3, max_wait_time=6, logger_name='vk',log_level='info', api_version=str(5.92)):
 
 		self.token = token  # token
 		self.api_version = api_version  # api version
@@ -62,7 +61,6 @@ class vk:
 
 			self.main_logger.setLevel(log_level)
 			self.main_logger.info('S T A R T\n\n')
-			
 
 	def jsoner(self, data):
 		# Эта функция обрабатывает входящий, сырой response обьект и делает из него что-то понятное
@@ -73,7 +71,9 @@ class vk:
 
 		if data.get('error') != None:
 			
-			if data.get('error').get('error_code') == 14:  data['error']['error_code'] = 'capthca'
+			if data.get('error').get('error_code') == 14:
+				data['error']['error_code'] = 'capthca'
+			
 			if data.get('error').get('error_code') == 100: data['error']['error_code'] = 'params'
 			if data.get('error').get('error_code') == 7:   data['error']['error_code'] = 'not_root'
 			if data.get('error').get('error_code') == 5:   data['error']['error_code'] = 'wrong_auth'
@@ -90,7 +90,6 @@ class vk:
 
 		else:
 			return data.get('response')
-
 
 	def method(self, method, args, token=None,captcha_id = '', captcha_key = ''):#20.12 - работает
 		#эта дичь просто посылает запрос на сервер вк, собирая нужную ссылку по частям.
@@ -110,7 +109,6 @@ class vk:
 		self.log.debug('method(), url: '+url)
 		return req.post(url)
 
-
 	def get_group_members(self, group_id, sort = 'id_asc', filter=None):
 		# закидывает вам участников группы, которую вы укажите.
 		params = {'group_id': group_id, 'sort': sort}
@@ -118,7 +116,6 @@ class vk:
 		r = self.jsoner(self.method('groups.getMembers', params))
 		
 		return r.get('items')
-
 
 	def get_usrinfo(self, url=0, fields= None):
 		# дает инфу о пользователе
@@ -146,7 +143,6 @@ class vk:
 
 			return r
 
-
 	def get_last_posts(self, owner_id, post_count = 100, offset = 1):
 		#последние посты со стены
 		self.log.info('getting last posts from wall...')
@@ -156,6 +152,11 @@ class vk:
 		arr=[i for i in r.get('items')]
 		return arr
 
+	def get_friends(self, id, offset =0):
+		# возвращает список друзей человека
+		params = {'user_id': id, 'offset': offset}
+		r= self.jsoner(self.method('friends.get', params)).get('items')
+		return r
 
 	def post(self, owner_id, msg ='ыыы', attachments='', time='', from_group='', is_ad=''):
 		#публикует запись на стене
@@ -165,16 +166,9 @@ class vk:
 
 	def add_friend(self, id, msg=''):
 		#добавляет друга
-		params = {'user_id': id, 'text': msg}#it should be text, not 'message'. idk also.
+		params = {'user_id': int(id), 'text': msg}#it should be text, not 'message'. idk also.
 		self.log.debug('adding friend...')
 		return self.jsoner(self.method('friends.add', params))
-
-	def get_friends(self, id, offset =0):
-		# возвращает список друзей человека
-		params = {'user_id': id, 'offset': offset}
-		r= self.jsoner(self.method('friends.get', params)).get('items')
-		return r
-
 
 	def msg(self, msg, id):
 		# отправляет сообщение человеку
@@ -188,7 +182,7 @@ class vk:
 		params = {'owner_id': owner_id, 'post_id': post_id, 'attachments': attachments, 'message': msg, 'from_group': from_group}
 		self.log.debug('sending comment...')
 		return self.method('wall.createComment', params)
-		
+
 	def get_rand_ids(self, count, last_seen_days_max = 3, start_id = 1):
 		# выдает тебе рандомные айдишники активных пользователей
 		# минимальное кол-во юзеров: 100
@@ -244,20 +238,6 @@ class vk:
 		self.log.info('found '+str(count)+' ids, during operetion ' + str(removed)+ ' has been removed')
 		return data
 
-	# def upload_photo(self, album_id, photos, group_id = '', capition=''):
-	# 	#пока не работает, но должно загружать фото на сервер
-
-	# 	#TODO: finally make it work
-	# 	url=self.method('photos.getUploadServer',
-	#			{'album_id': album_id, 'group_id': group_id}).get('response').get('upload_url')  # having url
-	# 	r=req.post(url, files=photos)#making request to this url
-	# 	r=self.method('photos.saveWallPhoto', {'user_id': group_id, 'photo': r.get('response'),
-	# 	'hash': r.get('response'), 'server': r.get('response'), 'capition': capition})#saving photo
-
-	# 	return r
-
-
-
 	# def enter_captcha(self, url, r, additional=[]):#TODO: use tk.py file, app class.
 	# 	pic = req.get(url, stream = True)
 	# 	jpeg_pic =''
@@ -266,35 +246,35 @@ class vk:
 	# 			fd.write(chunk)#saving capthca picture to file
 	# 			jpeg_pic = jpeg_pic + chunk
 
-	# 	def captcha_sender(r, captcha_key):#TODO: fix ЏРєРёР symbols.
-	# 		resp=r[1]#TODO: fix this shit and use method() instead
-	# 		url = 'https://api.vk.com/method/' + resp.get('request_params')[1].get('value') + '?'#adding method
-	# 		url=url+'captcha_sid='+resp.get('captcha_sid')+'&captcha_key='+captcha_key + '&access_token=' + self.token +'&v=' + self.api_version
-	# 		for i in additional:
-	# 			url = url +'&'+ i[0].decode('utf-8')+ '=' + i[1].decode('utf-8')
-	# 		for i in resp.get('request_params'):#getting info
-	# 			url = url + '&' + i.get('key') +'='+ i.get('value')
-	# 		self.TEMP = self.jsoner(req.post(url))
-		
+		# def captcha_sender(r, captcha_key):#TODO: fix ЏРєРёР symbols.
+		# 	resp=r[1]#TODO: fix this shit and use method() instead
+		# 	url = 'https://api.vk.com/method/' + resp.get('request_params')[1].get('value') + '?'#adding method
+		# 	url=url+'captcha_sid='+resp.get('captcha_sid')+'&captcha_key='+captcha_key + '&access_token=' + self.token +'&v=' + self.api_version
+		# 	for i in additional:
+		# 		url = url +'&'+ i[0].decode('utf-8')+ '=' + i[1].decode('utf-8')
+		# 	for i in resp.get('request_params'):#getting info
+		# 		url = url + '&' + i.get('key') +'='+ i.get('value')
+		# 	self.TEMP = self.jsoner(req.post(url))
 
-	# 	root=tk.Tk()
-	# 	captcha = tk.StringVar()
-	# 	captcha.set('')
-	# 	img = ImageTk.PhotoImage(Image.open('captcha.jpg'))
-	# 	panel = tk.Label(root, image = img)
-	# 	panel.pack()
+		# root=tk.Tk()
+		# captcha = tk.StringVar()
+		# captcha.set('')
+		# img = ImageTk.PhotoImage(Image.open('captcha.jpg'))
+		# panel = tk.Label(root, image = img)
+		# panel.pack()
 
-	# 	entry_field = tk.Entry(root, textvariable=captcha)
-	# 	entry_field.bind("<Return>", lambda a=1,captcha=captcha: captcha_sender(r, captcha.get()))
-	# 	ok = tk.Button(root,text= "Send", command= lambda a=1,captcha=captcha: captcha_sender(r, captcha.get()))#command=captcha_url_maker
-	# 	entry_field.pack()
-	# 	ok.pack()
+		# entry_field = tk.Entry(root, textvariable=captcha)
+		# entry_field.bind("<Return>", lambda a=1,captcha=captcha: captcha_sender(r, captcha.get()))
+		# ok = tk.Button(root,text= "Send", command= lambda a=1,captcha=captcha: captcha_sender(r, captcha.get()))#command=captcha_url_maker
+		# entry_field.pack()
+		# ok.pack()
 
-	# 	while True:
-	# 		root.update()
+		# while True:
+		# 	root.update()
 
-	# 		if self.TEMP != None:
-	# 			root.destroy()
-	# 			tmp = self.TEMP
-	# 			self.TEMP=None
-	# 			return tmp
+		# 	if self.TEMP != None:
+		# 		root.destroy()
+		# 		tmp = self.TEMP
+		# 		self.TEMP=None
+		# 		return tmp
+
