@@ -1,29 +1,13 @@
 # -*- coding: utf-8 -*-
+import app.app as app
+bot_token = 'f6889df04548844fff8da1b63ad44c0c1b364a5257eb04d1a5760ef35f1db16a7344d7ac82bfa5c701349'  # bot
 
-
-#крч, вот мне на завтра задание - как только закончу дрочить на каллбак, проетстить все функции и отправить в /master
-#а то это рили пиздец
-
-
-
-
-import group_bot
-import vk_bot
-from time import *
-from flask import *
 
 def main():
-	###ENTER TOKENS BELOW
-	###ENTER TOKENS BELOW
-	###ENTER TOKENS BELOW
-	group_token = ''#group
-	bot_token   = ''#bot
+    thing = app.App(bot_token, logger_name='stalker_group', log_level='DEBUG')
+    thing.start_handling()
+    # thing.start_checking()
 
-
-	bot = vk_bot.bot(bot_token)#инициализируем обьекты с нашими токенами
-	group = group_bot.group(group_token)
 
 if __name__ == '__main__':
-	main()
-
-
+    main()
